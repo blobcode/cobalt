@@ -8,6 +8,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // logging setup
     SimpleLogger::new().init().unwrap();
 
-    server::run().await?;
+    let server = server::Server { port: 80 };
+
+    server.run().await?;
     Ok(())
 }

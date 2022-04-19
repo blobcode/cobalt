@@ -5,28 +5,34 @@ use tokio::net::{TcpListener, TcpStream};
 use futures::FutureExt;
 use std::error::Error;
 
-pub async fn run() -> Result<(), Box<dyn Error>> {
-    let listen_addr = "127.0.0.1:8081".to_string();
-    let server_addr = "127.0.0.1:8080".to_string();
-
-    log::info!("Listening on: {}", listen_addr);
-    log::info!("Proxying to: {}", server_addr);
-
-    let listener = TcpListener::bind(listen_addr).await?;
-
-    while let Ok((inbound, _)) = listener.accept().await {
-        let transfer = transfer(inbound, server_addr.clone()).map(|r| {
-            if let Err(e) = r {
-                log::error!("Failed to proxy; error={}", e);
-            }
-        });
-
-        tokio::spawn(transfer);
-    }
-    Ok(())
+pub struct Server {
+    pub port: u32,
 }
 
-async fn transfer(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
+impl Server {
+    pub async fn run(&self) -> Result<(), Box<dyn Error>> {
+        let listen_addr = "127.0.0.1:8081".to_string();
+        let server_addr = "127.0.0.1:8080".to_string();
+
+        log::info!("Listening on: {}", listen_addr);
+        log::info!("Proxying to: {}", server_addr);
+
+        let listener = TcpListener::bind(listen_addr).await?;
+
+        while let Ok((inbound, _)) = listener.accept().await {
+            let transfer = proxy(inbound, server_addr.clone()).map(|r| {
+                if let Err(e) = r {
+                    log::error!("Failed to proxy; error={}", e);
+                }
+            });
+
+            tokio::spawn(transfer);
+        }
+        Ok(())
+    }
+}
+
+async fn proxy(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
     let mut outbound = TcpStream::connect(proxy_addr).await?;
 
     let (mut ri, mut wi) = inbound.split();
