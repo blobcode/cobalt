@@ -1,5 +1,5 @@
-port = 8080
+port = 8000
 
 [[host]]
-from = ["localhost:8080"]
+from = ["localhost:8000"]
 to = "localhost:4000"
