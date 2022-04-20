@@ -8,7 +8,7 @@ pub struct Opts {
 pub fn parse() -> Opts {
     let path = short('c')
         .long("config")
-        .help("path to config file")
+        .help("Path to config file")
         .argument("PATH")
         .from_str();
 
