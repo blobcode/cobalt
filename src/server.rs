@@ -33,26 +33,23 @@ impl Server {
         Ok(())
     }
 }
+
 // request handler
-async fn handle(
-    mut inbound: TcpStream,
-    hosts: HashMap<String, String>,
-) -> Result<(), Box<dyn Error>> {
+async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<(), Box<dyn Error>> {
     let mut buf = vec![0; 1024];
-
-    let (mut ri, _) = inbound.split();
-    ri.peek(&mut buf).await.unwrap();
-
     let mut headers = [httparse::EMPTY_HEADER; 16];
     let mut r = httparse::Request::new(&mut headers);
 
+    // parse request
+    inbound.peek(&mut buf).await.unwrap();
     r.parse(&buf).unwrap();
 
+    // parse headers
     let p = headers.iter().position(|&h| h.name == "Host").unwrap();
     let host = String::from_utf8_lossy(headers[p].value).to_string();
-
     let to = hosts.get(&host).unwrap();
 
+    // proxy
     let proxy = proxy(inbound, to.to_string()).map(|r| {
         if let Err(e) = r {
             log::error!("Failed to proxy; error={}", e);
