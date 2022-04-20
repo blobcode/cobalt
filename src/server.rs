@@ -1,5 +1,5 @@
 use tokio::io::AsyncWriteExt;
-use tokio::io::{self, AsyncReadExt};
+use tokio::io::{self};
 use tokio::net::{TcpListener, TcpStream};
 
 use futures::FutureExt;
@@ -33,17 +33,8 @@ impl Server {
 }
 
 // request handler
-async fn handle(mut inbound: TcpStream) -> Result<(), Box<dyn Error>> {
-    let mut buf = vec![0; 1024];
-    inbound.read(&mut buf).await.unwrap();
-    let mut headers = [httparse::EMPTY_HEADER; 16];
-    let mut r = httparse::Request::new(&mut headers);
-
-    r.parse(&buf).unwrap();
-
-    let p = headers.iter().position(|&h| h.name == "Host").unwrap();
-    let host = String::from_utf8_lossy(headers[p].value);
-
+async fn handle(inbound: TcpStream) -> Result<(), Box<dyn Error>> {
+    let host = "localhost:8080";
     log::info!("{}", host);
 
     let proxy = proxy(inbound, host.to_string()).map(|r| {
@@ -59,6 +50,7 @@ async fn handle(mut inbound: TcpStream) -> Result<(), Box<dyn Error>> {
 
 // proxy a tcp stream
 async fn proxy(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
+    log::info!("proxying to {}", proxy_addr);
     let mut outbound = TcpStream::connect(proxy_addr).await?;
 
     let (mut ri, mut wi) = inbound.split();
