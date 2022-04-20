@@ -3,4 +3,4 @@ port = 8000
 
 [[host]]
 from = ["localhost:8000"]
-to = "localhost:4000"
+to = "localhost:8080"
