@@ -36,6 +36,7 @@ impl Server {
 
 // request handler
 async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<(), Box<dyn Error>> {
+    // buffer init
     let mut buf = vec![0; 1024];
     let mut headers = [httparse::EMPTY_HEADER; 16];
     let mut r = httparse::Request::new(&mut headers);
@@ -61,10 +62,12 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     Ok(())
 }
 
-// proxy a tcp stream
+// proxy tcpstream
 async fn proxy(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
+    // connect to server
     let mut outbound = TcpStream::connect(proxy_addr).await?;
 
+    // split and merge streams
     let (mut ri, mut wi) = inbound.split();
     let (mut ro, mut wo) = outbound.split();
 

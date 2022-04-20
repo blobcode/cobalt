@@ -1,5 +1,5 @@
 use simple_logger::SimpleLogger;
-use std::{collections::HashMap, error::Error};
+use std::error::Error;
 
 mod args;
 mod config;
@@ -16,14 +16,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // get config
     let config = config::parse(opts.path);
 
-    let mut hosts = HashMap::new();
-    hosts.insert("localhost:8000".to_string(), "localhost:8080".to_string());
-
     // server setup
     let server = server::Server {
         port: config.port,
-        hosts,
+        hosts: config.hosts,
     };
+
+    // run server
     server.run().await?;
+
     Ok(())
 }

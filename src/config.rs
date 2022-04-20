@@ -25,6 +25,7 @@ pub struct HostToml {
 fn parsehosts(config: ConfigToml) -> HashMap<String, String> {
     // parse list
     let mut hosts = HashMap::new();
+
     // add all "to" and "from" fields to the hashmap
     for host in config.host {
         for from in host.from {

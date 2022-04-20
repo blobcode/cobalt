@@ -6,6 +6,7 @@ pub struct Opts {
 }
 
 pub fn parse() -> Opts {
+    // config path
     let path = short('c')
         .long("config")
         .help("Path to config file")
