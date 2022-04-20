@@ -1,3 +1,4 @@
+use std::collections::HashMap;
 use tokio::io::AsyncWriteExt;
 use tokio::io::{self};
 use tokio::net::{TcpListener, TcpStream};
@@ -7,6 +8,7 @@ use std::error::Error;
 
 pub struct Server {
     pub port: u16,
+    pub hosts: HashMap<String, String>,
 }
 
 impl Server {
@@ -20,7 +22,7 @@ impl Server {
 
         // listener loop that passes off to handler
         while let Ok((inbound, _)) = listener.accept().await {
-            let handler = handle(inbound).map(|r| {
+            let handler = handle(inbound, self.hosts.clone()).map(|r| {
                 if let Err(e) = r {
                     log::error!("Failed to handle request; error={}", e);
                 }
@@ -31,13 +33,27 @@ impl Server {
         Ok(())
     }
 }
-
 // request handler
-async fn handle(inbound: TcpStream) -> Result<(), Box<dyn Error>> {
-    let host = "localhost:8080";
-    log::info!("{}", host);
+async fn handle(
+    mut inbound: TcpStream,
+    hosts: HashMap<String, String>,
+) -> Result<(), Box<dyn Error>> {
+    let mut buf = vec![0; 1024];
 
-    let proxy = proxy(inbound, host.to_string()).map(|r| {
+    let (mut ri, _) = inbound.split();
+    ri.peek(&mut buf).await.unwrap();
+
+    let mut headers = [httparse::EMPTY_HEADER; 16];
+    let mut r = httparse::Request::new(&mut headers);
+
+    r.parse(&buf).unwrap();
+
+    let p = headers.iter().position(|&h| h.name == "Host").unwrap();
+    let host = String::from_utf8_lossy(headers[p].value).to_string();
+
+    let to = hosts.get(&host).unwrap();
+
+    let proxy = proxy(inbound, to.to_string()).map(|r| {
         if let Err(e) = r {
             log::error!("Failed to proxy; error={}", e);
         }
@@ -50,7 +66,6 @@ async fn handle(inbound: TcpStream) -> Result<(), Box<dyn Error>> {
 
 // proxy a tcp stream
 async fn proxy(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
-    log::info!("proxying to {}", proxy_addr);
     let mut outbound = TcpStream::connect(proxy_addr).await?;
 
     let (mut ri, mut wi) = inbound.split();
