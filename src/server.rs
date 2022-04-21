@@ -14,7 +14,7 @@ pub struct Server {
 impl Server {
     // start server
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
-        let listen_addr = "127.0.0.1:".to_string() + &self.port.to_string();
+        let listen_addr = "localhost:".to_string() + &self.port.to_string();
 
         log::info!("cobalt started");
 
