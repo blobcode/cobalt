@@ -20,7 +20,7 @@ impl Server {
 
         let listener = TcpListener::bind(&listen_addr).await?;
 
-        log::info!("listening on: {}", listen_addr);
+        log::info!("listening on: http://{}", listen_addr);
 
         // listener loop that passes off to handler
         while let Ok((inbound, _)) = listener.accept().await {
