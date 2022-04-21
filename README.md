@@ -1,6 +1,6 @@
 # ⚙️ cobalt
 
-cobalt is a simple, minimal reverse proxy in rust using tokio. It's the greatly improved descendant of the earlier [pine](https://github.com/blobcode/pine).
+cobalt is a minimal, high performance reverse proxy written in rust using tokio. It's the greatly improved descendant of the earlier [pine](https://github.com/blobcode/pine).
 It focuses on simplicity and speed, with >1ms of latency added to most requests.
 
 ## installation
