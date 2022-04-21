@@ -16,15 +16,17 @@ impl Server {
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
         let listen_addr = "127.0.0.1:".to_string() + &self.port.to_string();
 
-        log::info!("Listening on: {}", listen_addr);
+        log::info!("cobalt started");
 
-        let listener = TcpListener::bind(listen_addr).await?;
+        let listener = TcpListener::bind(&listen_addr).await?;
+
+        log::info!("listening on: {}", listen_addr);
 
         // listener loop that passes off to handler
         while let Ok((inbound, _)) = listener.accept().await {
             let handler = handle(inbound, self.hosts.clone()).map(|r| {
                 if let Err(e) = r {
-                    log::error!("Failed to handle request; error={}", e);
+                    log::error!("failed to handle request; {}", e);
                 }
             });
 
@@ -53,7 +55,7 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     // proxy
     let proxy = proxy(inbound, to.to_string()).map(|r| {
         if let Err(e) = r {
-            log::error!("Failed to proxy; error={}", e);
+            log::error!("failed to proxy; {}", e);
         }
     });
 
