@@ -1,4 +1,3 @@
-use simple_logger::SimpleLogger;
 use std::error::Error;
 
 mod args;
@@ -8,7 +7,7 @@ mod server;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // logging setup
-    SimpleLogger::new().init().unwrap();
+    simple_logger::init_with_level(log::Level::Info).unwrap();
 
     // get args
     let opts = args::parse();
