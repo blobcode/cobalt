@@ -38,7 +38,7 @@ impl Server {
 async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<(), Box<dyn Error>> {
     // buffer init
     let mut buf = vec![0; 512];
-    let mut headers = [httparse::EMPTY_HEADER; 8];
+    let mut headers = [httparse::EMPTY_HEADER; 16];
     let mut r = httparse::Request::new(&mut headers);
 
     // parse request
