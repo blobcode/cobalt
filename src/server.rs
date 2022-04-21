@@ -42,8 +42,8 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     let mut r = httparse::Request::new(&mut headers);
 
     // parse request
-    inbound.peek(&mut buf).await.unwrap();
-    r.parse(&buf).unwrap();
+    inbound.peek(&mut buf).await?;
+    r.parse(&buf)?;
 
     // parse headers
     let p = headers.iter().position(|&h| h.name == "Host").unwrap();
