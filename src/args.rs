@@ -1,10 +1,13 @@
 use bpaf::*;
 use std::path::PathBuf;
+
+// main args struct
 #[derive(Clone, Debug)]
 pub struct Opts {
     pub path: PathBuf,
 }
 
+// parse cli args
 pub fn parse() -> Opts {
     // config path
     let path = short('c')

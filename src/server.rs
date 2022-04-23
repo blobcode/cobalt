@@ -1,11 +1,12 @@
 use std::collections::HashMap;
+use tokio::io;
 use tokio::io::AsyncWriteExt;
-use tokio::io::{self};
 use tokio::net::{TcpListener, TcpStream};
 
 use futures::FutureExt;
 use std::error::Error;
 
+// main server state
 pub struct Server {
     pub port: u16,
     pub hosts: HashMap<String, String>,
@@ -16,10 +17,9 @@ impl Server {
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
         let listen_addr = "localhost:".to_string() + &self.port.to_string();
 
+        // start server
         log::info!("cobalt started");
-
         let listener = TcpListener::bind(&listen_addr).await?;
-
         log::info!("listening on: http://{}", listen_addr);
 
         // listener loop that passes off to handler
@@ -30,6 +30,7 @@ impl Server {
                 }
             });
 
+            // create thread for handler
             tokio::spawn(handler);
         }
         Ok(())
@@ -43,7 +44,7 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     let mut headers = [httparse::EMPTY_HEADER; 16];
     let mut r = httparse::Request::new(&mut headers);
 
-    // parse request
+    // peek into buffer and parse request
     inbound.peek(&mut buf).await?;
     r.parse(&buf)?;
 
@@ -59,6 +60,7 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
         }
     });
 
+    // spawn thread for proxy
     tokio::spawn(proxy);
 
     Ok(())

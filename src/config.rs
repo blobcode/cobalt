@@ -8,13 +8,14 @@ pub struct Config {
     pub hosts: HashMap<String, String>,
 }
 
-// structs that parse toml
+// toml representation
 #[derive(Deserialize)]
 pub struct ConfigToml {
     pub port: u16,
     pub host: Vec<HostToml>,
 }
 
+// toml representation
 #[derive(Deserialize)]
 pub struct HostToml {
     pub from: Vec<String>,
@@ -23,10 +24,10 @@ pub struct HostToml {
 
 // parse config file
 fn parsehosts(config: ConfigToml) -> HashMap<String, String> {
-    // parse list
+    // create standin hashmap
     let mut hosts = HashMap::new();
 
-    // add all "to" and "from" fields to the hashmap
+    // unwrap fields into the hashmap
     for host in config.host {
         for from in host.from {
             let to = &host.to;
