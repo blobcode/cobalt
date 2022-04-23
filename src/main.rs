@@ -7,13 +7,13 @@ mod server;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     // logging setup
-    simple_logger::init_with_level(log::Level::Info).unwrap();
+    simple_logger::init_with_level(log::Level::Info)?;
 
     // get args
     let opts = args::parse();
 
     // get config
-    let config = config::parse(opts.path);
+    let config = config::parse(opts.path)?;
 
     // server setup
     let server = server::Server {

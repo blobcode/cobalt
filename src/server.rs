@@ -51,7 +51,7 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     // parse headers
     let p = headers.iter().position(|&h| h.name == "Host").unwrap();
     let host = String::from_utf8_lossy(headers[p].value).to_string();
-    let to = hosts.get(&host).unwrap();
+    let to = &hosts[&host];
 
     // proxy
     let proxy = proxy(inbound, to.to_string()).map(|r| {

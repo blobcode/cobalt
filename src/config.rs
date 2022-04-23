@@ -1,4 +1,5 @@
 use serde::Deserialize;
+use std::error::Error;
 use std::path::PathBuf;
 use std::{collections::HashMap, fs};
 
@@ -31,23 +32,23 @@ fn parsehosts(config: ConfigToml) -> HashMap<String, String> {
     for host in config.host {
         for from in host.from {
             let to = &host.to;
-            hosts.insert(from.to_string(), to.to_string());
+            hosts.insert(from, to.to_string());
         }
     }
     hosts
 }
 
 // main function to get config struct
-pub fn parse(file: PathBuf) -> Config {
+pub fn parse(file: PathBuf) -> Result<Config, Box<dyn Error>> {
     // load config
-    let buf = fs::read_to_string(file).unwrap();
+    let buf = fs::read_to_string(file)?;
 
     // parse file contents
-    let config: ConfigToml = toml::from_str(&buf).unwrap();
+    let config: ConfigToml = toml::from_str(&buf)?;
 
-    // create main config struct
-    Config {
+    // create and return main config struct
+    Ok(Config {
         port: config.port,
         hosts: parsehosts(config),
-    }
+    })
 }
