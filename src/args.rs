@@ -21,7 +21,7 @@ pub fn parse() -> Opts {
 
     // define help message, attach it to parser, and run the results
     Info::default()
-        .descr("a simple reverse proxy")
+        .descr("cobalt - a simple reverse proxy by blobcode")
         .for_parser(parser)
         .run()
 }
