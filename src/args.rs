@@ -20,7 +20,7 @@ pub fn parse() -> Opts {
     // combine all parsers
     let parser = construct!(Opts { path });
 
-    // define help message,
+    // define help message, init
     Info::default()
         .descr("cobalt - a simple reverse proxy by blobcode")
         .for_parser(parser)
