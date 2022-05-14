@@ -15,9 +15,9 @@ pub struct Server {
 impl Server {
     // start server
     pub async fn run(&self) -> Result<(), Box<dyn Error>> {
+        // setup address
         let listen_addr = "localhost:".to_string() + &self.port.to_string();
 
-        // start server
         log::info!("cobalt started");
         let listener = TcpListener::bind(&listen_addr).await?;
         log::info!("listening on: http://{}", listen_addr);
@@ -48,12 +48,11 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     inbound.peek(&mut buf).await?;
     r.parse(&buf)?;
 
-    // parse headers
+    // try to parse headers
     let p = headers.iter().position(|&h| h.name == "Host").unwrap();
     let host = String::from_utf8_lossy(headers[p].value).to_string();
     let to = &hosts[&host];
 
-    // proxy
     let proxy = proxy(inbound, to.to_string()).map(|r| {
         if let Err(e) = r {
             log::error!("failed to proxy; {}", e);
@@ -66,12 +65,12 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     Ok(())
 }
 
-// proxy tcpstream
+// proxy tcpstreams
 async fn proxy(mut inbound: TcpStream, proxy_addr: String) -> Result<(), Box<dyn Error>> {
-    // connect to server
+    // open stream
     let mut outbound = TcpStream::connect(proxy_addr).await?;
 
-    // split and merge streams
+    // split, swap and merge streams
     let (mut ri, mut wi) = inbound.split();
     let (mut ro, mut wo) = outbound.split();
 

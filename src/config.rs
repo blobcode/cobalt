@@ -9,14 +9,14 @@ pub struct Config {
     pub hosts: HashMap<String, String>,
 }
 
-// toml representation
+// toml representation (main)
 #[derive(Deserialize)]
 pub struct ConfigToml {
     pub port: u16,
     pub host: Vec<HostToml>,
 }
 
-// toml representation
+// toml representation (for hosts)
 #[derive(Deserialize)]
 pub struct HostToml {
     pub from: Vec<String>,
@@ -38,9 +38,9 @@ fn parsehosts(config: ConfigToml) -> HashMap<String, String> {
     hosts
 }
 
-// main function to get config struct
+// get config struct
 pub fn parse(file: PathBuf) -> Result<Config, Box<dyn Error>> {
-    // load config
+    // load config from file
     let buf = fs::read_to_string(file)?;
 
     // parse file contents

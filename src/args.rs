@@ -17,10 +17,10 @@ pub fn parse() -> Opts {
         .fallback("./cobalt.toml".to_string())
         .from_str();
 
-    // combine parsers `speed` and `distance` parsers into a parser for Opts
+    // combine all parsers
     let parser = construct!(Opts { path });
 
-    // define help message, attach it to parser, and run the results
+    // define help message,
     Info::default()
         .descr("cobalt - a simple reverse proxy by blobcode")
         .for_parser(parser)

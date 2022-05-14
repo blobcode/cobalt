@@ -6,7 +6,7 @@ mod server;
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
-    // logging setup
+    // logging setup - log at info level
     simple_logger::init_with_level(log::Level::Info)?;
 
     // get args
