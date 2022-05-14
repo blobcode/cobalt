@@ -12,8 +12,9 @@ pub fn parse() -> Opts {
     // config path
     let path = short('c')
         .long("config")
-        .help("Path to config file")
+        .help("Path to config file - defaults to ./cobalt.toml")
         .argument("PATH")
+        .fallback("./cobalt.toml".to_string())
         .from_str();
 
     // combine parsers `speed` and `distance` parsers into a parser for Opts
