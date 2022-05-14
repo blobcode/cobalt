@@ -15,6 +15,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
     // get config
     let config = config::parse(opts.path)?;
 
+    // assert valid config
+    log::info!("config vaild");
+
     // server setup
     let server = server::Server {
         port: config.port,
