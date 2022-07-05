@@ -8,6 +8,8 @@ average maximum throughput of ~100,000 rps.
 
 to install, you'll need `cargo` and `git` installed.
 
+You can then run
+
 ```
 cargo install --git https://github.com/blobcode/cobalt.git
 ```
@@ -15,7 +17,7 @@ cargo install --git https://github.com/blobcode/cobalt.git
 ## getting started
 
 to get up and running, just install and run `cobalt -c <path to config file>`.
-Please note that cobalt will need to be placed behind ssl termination.
+Please note that cobalt will need to be placed behind ssl termination, as it works with http only.
 
 ## config
 
