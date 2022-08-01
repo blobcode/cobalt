@@ -2,6 +2,7 @@ use std::collections::HashMap;
 use tokio::io;
 use tokio::io::AsyncWriteExt;
 use tokio::net::{TcpListener, TcpStream};
+use tokio::task;
 
 use futures::FutureExt;
 use std::error::Error;
@@ -42,17 +43,27 @@ async fn handle(inbound: TcpStream, hosts: HashMap<String, String>) -> Result<()
     // buffer init
     let mut buf = vec![0; 256];
     let mut headers = [httparse::EMPTY_HEADER; 16];
-    let mut r = httparse::Request::new(&mut headers);
 
     // peek into buffer and parse request
     inbound.peek(&mut buf).await?;
-    r.parse(&buf)?;
 
-    // try to parse headers
-    let p = headers.iter().position(|&h| h.name == "Host").unwrap();
-    let host = String::from_utf8_lossy(headers[p].value).to_string();
+    let b = buf.leak();
+
+    // do buffer parsing
+    let host = task::spawn_blocking(move || {
+        let mut r = httparse::Request::new(&mut headers);
+        r.parse(b).unwrap();
+        // try to parse headers
+        let p = headers.iter().position(|&h| h.name == "Host").unwrap();
+        let host = String::from_utf8_lossy(headers[p].value).to_string();
+        host
+    })
+    .await?;
+
+    // lookup
     let to = &hosts[&host];
 
+    // spawn proxy
     let proxy = proxy(inbound, to.to_string()).map(|r| {
         if let Err(e) = r {
             log::error!("failed to proxy; {}", e);
